@@ -5,8 +5,8 @@ const router = express.Router()
 const blogController = require('../controllers/blogController')
 const authController = require('../controllers/authController')
 
-// CALL MODELS
-const Blog = require('../models/Blog')
+// CALL MIDDLEWARE
+const checkAuth = require('../middleware/checkAuth')
 
 router.get('/', function(req, res){
     res.send('HALOOO GAIS ')
@@ -19,11 +19,11 @@ router.post('/register', authController.register)
 // BLOG
 router.route('/blogs')
     .get(blogController.index)
-    .post(blogController.store)
+    .post(checkAuth, blogController.store)
 router.route('/blogs/:id')
     .get(blogController.getBlog, blogController.show)
-    .put(blogController.getBlog, blogController.update)
-    .delete(blogController.getBlog, blogController.delete)
+    .put(checkAuth, blogController.getBlog, blogController.update)
+    .delete(checkAuth, blogController.getBlog, blogController.delete)
 
 
 module.exports = router

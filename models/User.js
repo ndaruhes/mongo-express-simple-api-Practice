@@ -9,8 +9,13 @@ const userSchema = new Schema({
     role: String
 }, {timestamps: true})
 
+
 userSchema.methods.hashPassword = function(password){
     return bcrypt.hashSync(password, 10, null)
+}
+
+userSchema.methods.checkPassword = function(password){
+    return bcrypt.compareSync(password, this.password)
 }
 
 const User = mongoose.model('User', userSchema)

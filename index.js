@@ -21,8 +21,5 @@ db.on('error', () => console.log('Failed to Connect Database'))
 db.once('open', () => console.log('Connected to Database'))
 
 
-// app.get('/', function(req, res){
-//     res.send('HALO WKWK');
-// })
-
+// RUN APP
 app.listen(port, console.log('Server Started on Port ' + port))
