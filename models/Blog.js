@@ -9,6 +9,18 @@ const blogSchema = new Schema({
     content: {
         type: String,
         required: true
+    },
+    cover: {
+        type: String,
+        required: true
+    },
+    slug: {
+        type: String,
+        required: true
+    },
+    userId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User'
     }
 }, {timestamps: true})
 

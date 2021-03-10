@@ -1,5 +1,6 @@
 const { response } = require('express')
 const Blog = require('../models/Blog')
+const auth = require('../middleware/checkAuth')
 
 module.exports = {
     index: async function(req, res){
@@ -7,7 +8,19 @@ module.exports = {
             const blogs = await Blog.find()
             if(blogs.length > 0){
                 res.json({
-                    blogs: blogs,
+                    blogs: blogs.map(blog => {
+                        return {
+                            id: blog._id,
+                            title: blog.title,
+                            content: blog.content,
+                            cover: blog.cover,
+                            slug: blog.slug
+                        }
+                    }),
+                    request: {
+                        method: req.method,
+                        url: process.env.BASE_URL + '/blogs'
+                    },
                     status: true
                 })
             }else{
@@ -27,16 +40,29 @@ module.exports = {
         res.send(res.blog)
     },
     store: async function(req, res){
+        // res.send(auth.decoded)
         const blog = new Blog({
             title: req.body.title,
-            content: req.body.content
+            content: req.body.content,
+            cover: req.file.filename,
+            slug: createSlug(req.body.title),
+            // userId: '6043b143519a331ea8153804'
         })
 
         try{
             const newBlog = await blog.save()
             res.status(201).json({
-                data: newBlog,
+                data: {
+                    id: newBlog._id,
+                    title: newBlog.title,
+                    slug: newBlog.slug,
+					// userId: '6043b143519a331ea8153804'
+                },
                 message: 'Blog berhasil ditambah',
+                request: {
+                    method: req.method,
+                    url: process.env.BASE_URL + '/blogs'
+                },
                 status: true
             })
         }catch(err){
@@ -54,8 +80,15 @@ module.exports = {
         try{
             const updatedBlog = await res.blog.save()
             res.json({
-                data: updatedBlog,
+                data: {
+                    id: updatedBlog._id,
+                    title: updatedBlog.title
+                },
                 message: 'Blog berhasil diubah',
+                request: {
+                    method: req.method,
+                    url: process.env.BASE_URL + '/blogs/' + res.blog.id
+                },
                 status: true
 
             })
@@ -71,8 +104,15 @@ module.exports = {
         try{
             await res.blog.remove()
             res.json({
-                data: res.blog,
+                data: {
+                    id: res.blog._id,
+                    title: res.blog.title
+                },
                 message: 'Blog berhasil dihapus',
+                request: {
+                    method: req.method,
+                    url: process.env.BASE_URL + '/blogs/' + res.blog.id
+                },
                 status: true,
             })
         }catch(err){
@@ -100,5 +140,18 @@ module.exports = {
     
         res.blog = blog
         next()
-    }
+    },
+}
+
+function createSlug (string){
+    const dateFormat = new Date().getTime()
+    return string
+            .toString()
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^\w\-]+/g, "")
+            .replace(/\-\-+/g, "-")
+            .replace(/^-+/, "")
+            .replace(/-+$/, "")+'-'+dateFormat
 }

@@ -10,13 +10,17 @@ module.exports = {
             if(!user.checkPassword(req.body.password)) res.json({message: 'Kombinasi email dan password gk sesuai', status: false})
 
             const token = jwt.sign(user.toJSON(), process.env.JWT_KEY, {
-                expiresIn: '1h'
+                expiresIn: '24h'
             })
 
             res.json({
                 message: 'Berhasil Login',
                 status: true,
-                token: token
+                token: token,
+				data: {
+					id: user._id,
+					name: user.name
+				}
             })
         })
     },
